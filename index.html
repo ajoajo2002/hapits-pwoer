@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>متتبع العادات</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f9d7a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="العادات">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7f9;--card:#fff;--tx:#1b2430;--mu:#6b7686;--bd:#e2e6ec;--ac:#0f9d7a;--ac2:#e8f6f2;--bar:#0f9d7a;--rd:#d64545}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#12161c;--card:#1b212a;--tx:#e8edf3;--mu:#97a2b0;--bd:#2c3441;--ac:#2cc9a0;--ac2:#18332d;--bar:#2cc9a0;--rd:#ef6b6b}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#12161c;--card:#1b212a;--tx:#e8edf3;--mu:#97a2b0;--bd:#2c3441;--ac:#2cc9a0;--ac2:#18332d;--bar:#2cc9a0;--rd:#ef6b6b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Tajawal',Tahoma,Arial,sans-serif;padding:14px;max-width:1200px;margin-inline:auto}
+h1{font-size:22px;margin:4px 0 12px}h2{font-size:16px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button,input{font-family:inherit;font-size:14px;touch-action:manipulation}
+button{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:9px;padding:8px 14px;cursor:pointer}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+button:disabled{opacity:.5}
+input[type=text]{flex:1;min-width:140px;padding:9px 10px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx)}
+.months{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.months button{white-space:nowrap}.months button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:var(--ac2);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px;color:var(--ac)}.stat span{font-size:12px;color:var(--mu)}
+.sc{overflow-x:auto}
+table{border-collapse:collapse;min-width:100%}
+th,td{border:1px solid var(--bd);text-align:center;padding:3px;font-size:12px;min-width:30px}
+th.n,td.n{position:sticky;inset-inline-start:0;background:var(--card);min-width:110px;text-align:start;padding:5px 8px;font-size:13px;z-index:1}
+th small{display:block;color:var(--mu);font-weight:400;font-size:10px}
+td input{width:18px;height:18px;accent-color:var(--ac);cursor:pointer}
+td.tc{background:var(--ac2);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:flex;align-items:center;gap:6px;background:var(--ac2);border-radius:20px;padding:4px 6px 4px 12px;font-size:13px}
+.chip button{padding:4px 10px;border-radius:14px;font-size:12px;color:var(--rd)}
+.chip button.sure{background:var(--rd);color:#fff;border-color:var(--rd)}
+.empty{color:var(--mu);padding:10px}
+#msg{font-size:13px;color:var(--mu);margin-top:8px;min-height:18px}
+svg text{fill:var(--mu);font-family:inherit}
+</style>
+</head>
+<body>
+<h1>📅 متتبع العادات</h1>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between;margin-bottom:10px">
+    <div class="row"><button id="py">‹</button><b id="yr" style="min-width:48px;text-align:center"></b><button id="ny">›</button></div>
+    <button id="today">اليوم</button>
+  </div>
+  <div class="months" id="months"></div>
+</div>
+
+<div class="card">
+  <h2>➕ إضافة عادة</h2>
+  <div class="row"><input type="text" id="hn" placeholder="اسم العادة، مثال: قراءة 20 صفحة" maxlength="40"><button class="p" id="add" type="button">إضافة</button></div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<div class="card stats" id="stats"></div>
+
+<div class="card">
+  <h2 id="tt"></h2>
+  <div class="sc" id="tbl"></div>
+</div>
+
+<div class="card">
+  <h2>📊 عدد العادات المنجزة في كل يوم</h2>
+  <div class="sc" id="c1"></div>
+</div>
+
+<div class="card">
+  <h2>📈 نسبة الإنجاز الشهرية للسنة كاملة</h2>
+  <div class="sc" id="c2"></div>
+</div>
+
+<div class="card">
+  <h2>⬇️ تصدير تقرير السنة</h2>
+  <div class="row">
+    <button data-x="pdf">PDF</button>
+    <button data-x="docx">Word</button>
+    <button data-x="pptx">PowerPoint</button>
+  </div>
+  <div id="msg"></div>
+</div>
+
+<script>
+var MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+var DN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+var now=new Date(),Y=now.getFullYear(),M=now.getMonth();
+var S={habits:[{id:1,name:'شرب الماء'},{id:2,name:'الرياضة'},{id:3,name:'القراءة'}],checks:{},next:4};
+try{var r=localStorage.getItem('habits-v1');if(r){var o=JSON.parse(r);if(o&&o.habits)S=o}}catch(e){}
+function save(){try{localStorage.setItem('habits-v1',JSON.stringify(S))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function say(t){$('msg').textContent=t||''}
+function dim(y,m){return new Date(y,m+1,0).getDate()}
+function key(y,m,h,d){return y+'-'+m+'-'+h+'-'+d}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function stats(y,m){var n=dim(y,m),daily=[],per=[],t=0;
+  for(var d=1;d<=n;d++)daily.push(0);
+  S.habits.forEach(function(h){var c=0;for(var d=1;d<=n;d++)if(S.checks[key(y,m,h.id,d)]){c++;daily[d-1]++}t+=c;per.push({name:h.name,done:c})});
+  var tot=S.habits.length*n;return{n:n,daily:daily,per:per,done:t,pct:tot?Math.round(t/tot*1000)/10:0}}
+function bars(el,vals,labels,max,unit){
+  var w=Math.max(320,vals.length*30+40),h=190,pl=30,pb=26,pt=14,bw=(w-pl-8)/vals.length;
+  var s='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" dir="ltr">';
+  for(var i=0;i<=4;i++){var v=max*i/4,y=pt+(h-pt-pb)*(1-i/4);s+='<line x1="'+pl+'" x2="'+w+'" y1="'+y+'" y2="'+y+'" stroke="var(--bd)"/><text x="'+(pl-4)+'" y="'+(y+3)+'" font-size="9" text-anchor="end">'+(Math.round(v*10)/10)+'</text>'}
+  vals.forEach(function(v,i){var bh=max?(h-pt-pb)*v/max:0,x=pl+i*bw+bw*.15;
+    s+='<rect x="'+x+'" y="'+(h-pb-bh)+'" width="'+bw*.7+'" height="'+bh+'" rx="3" fill="var(--bar)"/>';
+    if(v>0)s+='<text x="'+(x+bw*.35)+'" y="'+(h-pb-bh-3)+'" font-size="9" text-anchor="middle">'+v+unit+'</text>';
+    s+='<text x="'+(x+bw*.35)+'" y="'+(h-8)+'" font-size="'+(labels[i].length>3?8:10)+'" text-anchor="middle">'+labels[i]+'</text>'});
+  el.innerHTML=s+'</svg>'}
+var armed=null,armT=0;
+function render(){
+  $('yr').textContent=Y;
+  $('months').innerHTML=MN.map(function(n,i){return '<button data-m="'+i+'" class="'+(i===M?'on':'')+'">'+n+'</button>'}).join('');
+  var n=dim(Y,M),H=S.habits;
+  $('chips').innerHTML=H.map(function(h){return '<span class="chip">'+esc(h.name)+'<button type="button" data-del="'+h.id+'" class="'+(armed===h.id?'sure':'')+'">'+(armed===h.id?'تأكيد الحذف؟':'حذف')+'</button></span>'}).join('');
+  $('tt').textContent=MN[M]+' '+Y+' — '+n+' يومًا';
+  if(!H.length){$('tbl').innerHTML='<div class="empty">لا توجد عادات بعد، أضف عادتك الأولى من الأعلى.</div>'}
+  else{
+    var t='<table><thead><tr><th class="n">اليوم</th>';
+    H.forEach(function(h){t+='<th style="min-width:70px">'+esc(h.name)+'</th>'});
+    t+='<th>المنجز</th></tr></thead><tbody>';
+    for(var d=1;d<=n;d++){t+='<tr><td class="n"><b>'+d+'</b> <small style="color:var(--mu)">'+DN[new Date(Y,M,d).getDay()]+'</small></td>';
+      H.forEach(function(h){t+='<td><input type="checkbox" data-h="'+h.id+'" data-d="'+d+'"'+(S.checks[key(Y,M,h.id,d)]?' checked':'')+'></td>'});
+      t+='<td class="tc" id="dt'+d+'"></td></tr>'}
+    $('tbl').innerHTML=t+'</tbody></table>'}
+  update()}
+function update(){
+  var st=stats(Y,M),H=S.habits,labels=[];
+  st.daily.forEach(function(c,i){labels.push(String(i+1));var e=$('dt'+(i+1));if(e)e.textContent=c});
+  bars($('c1'),st.daily,labels,Math.max(H.length,1),'');
+  var yp=[],yd=0,yt=0;
+  for(var m=0;m<12;m++){var s=stats(Y,m);yp.push(s.pct);yd+=s.done;yt+=H.length*s.n}
+  bars($('c2'),yp,MN,100,'%');
+  $('stats').innerHTML=
+   '<div class="stat"><b>'+st.done+'</b><span>عادات منجزة هذا الشهر</span></div>'+
+   '<div class="stat"><b>'+st.pct+'%</b><span>نسبة إنجاز الشهر</span></div>'+
+   '<div class="stat"><b>'+(yt?Math.round(yd/yt*1000)/10:0)+'%</b><span>نسبة إنجاز السنة</span></div>'+
+   '<div class="stat"><b>'+Math.max.apply(null,st.daily.concat([0]))+' / '+H.length+'</b><span>أفضل يوم في الشهر</span></div>'}
+$('months').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b){M=+b.dataset.m;render()}});
+$('py').addEventListener('click',function(){Y--;render()});
+$('ny').addEventListener('click',function(){Y++;render()});
+$('today').addEventListener('click',function(){Y=now.getFullYear();M=now.getMonth();render()});
+$('tbl').addEventListener('change',function(e){var i=e.target;if(i.dataset&&i.dataset.h){var k=key(Y,M,i.dataset.h,i.dataset.d);if(i.checked)S.checks[k]=1;else delete S.checks[k];save();update()}});
+$('chips').addEventListener('click',function(e){var b=e.target.closest('[data-del]');if(!b)return;var id=+b.dataset.del;
+  if(armed!==id){armed=id;clearTimeout(armT);armT=setTimeout(function(){armed=null;render()},3500);render();return}
+  clearTimeout(armT);armed=null;
+  S.habits=S.habits.filter(function(h){return h.id!==id});
+  Object.keys(S.checks).forEach(function(k){if(k.split('-')[2]==id)delete S.checks[k]});
+  save();render()});
+function addH(){var i=$('hn'),v=i.value.trim();if(!v)return;S.habits.push({id:S.next++,name:v});i.value='';save();render()}
+$('add').addEventListener('click',addH);
+$('hn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addH()}});
+
+/* ===== التصدير ===== */
+var CW=1280,CH=720,FONT="Tajawal, Tahoma, Arial, sans-serif";
+function canvas(){var c=document.createElement('canvas');c.width=CW;c.height=CH;var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,CW,CH);x.fillStyle='#1b2430';x.direction='rtl';x.textAlign='right';x.textBaseline='alphabetic';return[c,x]}
+function txt(x,t,px,py,size,bold,color,align){x.font=(bold?'700 ':'400 ')+size+'px '+FONT;x.fillStyle=color||'#1b2430';x.textAlign=align||'right';x.fillText(t,px,py)}
+function chart(x,vals,labels,max,unit,x0,y0,w,h){
+  var pl=36,pb=30,bw=(w-pl)/vals.length,ph=h-pb-10;
+  for(var i=0;i<=4;i++){var yy=y0+10+ph*(1-i/4);x.strokeStyle='#e2e6ec';x.beginPath();x.moveTo(x0+pl,yy);x.lineTo(x0+w,yy);x.stroke();txt(x,String(Math.round(max*i/4*10)/10),x0+pl-6,yy+4,12,false,'#6b7686','right')}
+  vals.forEach(function(v,i){var bh=max?ph*v/max:0,bx=x0+pl+i*bw+bw*.15;x.fillStyle='#0f9d7a';x.fillRect(bx,y0+10+ph-bh,bw*.7,bh);
+    if(v>0)txt(x,v+unit,bx+bw*.35,y0+10+ph-bh-5,vals.length>20?10:13,false,'#6b7686','center');
+    txt(x,labels[i],bx+bw*.35,y0+h-8,vals.length>20?11:14,false,'#6b7686','center')})}
+function yearPage(){var a=canvas(),c=a[0],x=a[1],yp=[],yd=0,yt=0;
+  for(var m=0;m<12;m++){var s=stats(Y,m);yp.push(s.pct);yd+=s.done;yt+=S.habits.length*s.n}
+  txt(x,'تقرير العادات لسنة '+Y,CW-50,80,40,true);
+  txt(x,'نسبة الإنجاز السنوية: '+(yt?Math.round(yd/yt*1000)/10:0)+'%   |   عدد العادات: '+S.habits.length,CW-50,130,24,false,'#6b7686');
+  chart(x,yp,MN,100,'%',50,170,CW-100,500);return c}
+function monthPage(m){var a=canvas(),c=a[0],x=a[1],s=stats(Y,m);
+  txt(x,MN[m]+' '+Y,CW-50,70,38,true);
+  txt(x,'نسبة الإنجاز: '+s.pct+'%   |   المنجز: '+s.done+'   |   الأيام: '+s.n,CW-50,115,22,false,'#6b7686');
+  var L=[];for(var d=1;d<=s.n;d++)L.push(String(d));
+  chart(x,s.daily,L,Math.max(S.habits.length,1),'',40,150,780,520);
+  txt(x,'العادات',CW-50,170,24,true);
+  s.per.slice(0,14).forEach(function(p,i){var yy=215+i*34;txt(x,p.name.slice(0,22),CW-50,yy,20);txt(x,p.done+' / '+s.n+' ('+Math.round(p.done/s.n*100)+'%)',860,yy,18,false,'#0f9d7a','left')});
+  return c}
+function allPages(){var p=[yearPage()];for(var m=0;m<12;m++)p.push(monthPage(m));return p}
+function b64(c,type,q){var s=atob(c.toDataURL(type,q).split(',')[1]),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
+function buildPDF(pages){var parts=[],off=0,xr=[],enc=new TextEncoder();
+  function add(s){var b=typeof s==='string'?enc.encode(s):s;parts.push(b);off+=b.length}
+  function obj(id,body){xr[id]=off;add(id+' 0 obj\n'+body+'\nendobj\n')}
+  var N=pages.length,kids=[];for(var i=0;i<N;i++)kids.push((3+3*i)+' 0 R');
+  add('%PDF-1.4\n');obj(1,'<</Type/Catalog/Pages 2 0 R>>');obj(2,'<</Type/Pages/Kids['+kids.join(' ')+']/Count '+N+'>>');
+  pages.forEach(function(c,i){var pg=3+3*i,ct=pg+1,im=pg+2,j=b64(c,'image/jpeg',.92),cs='q '+CW+' 0 0 '+CH+' 0 0 cm /Im0 Do Q';
+    obj(pg,'<</Type/Page/Parent 2 0 R/MediaBox[0 0 '+CW+' '+CH+']/Resources<</XObject<</Im0 '+im+' 0 R>>>>/Contents '+ct+' 0 R>>');
+    obj(ct,'<</Length '+cs.length+'>>\nstream\n'+cs+'\nendstream');
+    xr[im]=off;add(im+' 0 obj\n<</Type/XObject/Subtype/Image/Width '+CW+'/Height '+CH+'/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length '+j.length+'>>\nstream\n');add(j);add('\nendstream\nendobj\n')});
+  var total=3+3*N,xp=off;add('xref\n0 '+total+'\n0000000000 65535 f \n');
+  for(var id=1;id<total;id++)add(('0000000000'+xr[id]).slice(-10)+' 00000 n \n');
+  add('trailer\n<</Size '+total+'/Root 1 0 R>>\nstartxref\n'+xp+'\n%%EOF');
+  return new Blob(parts,{type:'application/pdf'})}
+function loadJS(u,g){return new Promise(function(ok,no){if(window[g])return ok();var s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=function(){no(new Error('load'))};document.head.appendChild(s)})}
+async function buildDOCX(pages){
+  await loadJS('https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.iife.js','docx');var D=window.docx;
+  function P(t,o){o=o||{};return new D.Paragraph({bidirectional:true,heading:o.h,children:[new D.TextRun({text:t,rightToLeft:true,bold:!!o.b})]})}
+  function cell(t,b){return new D.TableCell({children:[P(t,{b:b})]})}
+  var rows=[new D.TableRow({children:[cell('الشهر',1),cell('العادات المنجزة',1),cell('النسبة',1)]})];
+  for(var m=0;m<12;m++){var s=stats(Y,m);rows.push(new D.TableRow({children:[cell(MN[m]),cell(String(s.done)),cell(s.pct+'%')]}))}
+  var kids=[P('تقرير العادات لسنة '+Y,{h:D.HeadingLevel.HEADING_1}),new D.Table({visuallyRightToLeft:true,width:{size:100,type:D.WidthType.PERCENTAGE},rows:rows})];
+  pages.forEach(function(c){kids.push(new D.Paragraph({pageBreakBefore:true,children:[new D.ImageRun({type:'png',data:b64(c,'image/png'),transformation:{width:900,height:506}})]}))});
+  var doc=new D.Document({sections:[{properties:{page:{size:{orientation:D.PageOrientation.LANDSCAPE}}},children:kids}]});
+  return D.Packer.toBlob(doc)}
+async function buildPPTX(pages){
+  await loadJS('https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js','PptxGenJS');
+  var p=new PptxGenJS();p.layout='LAYOUT_16x9';
+  pages.forEach(function(c){p.addSlide().addImage({data:c.toDataURL('image/png'),x:0,y:0,w:10,h:5.625})});
+  return p.write({outputType:'blob'})}
+async function doExport(kind,btn){
+  var btns=document.querySelectorAll('[data-x]');btns.forEach(function(b){b.disabled=true});say('جارٍ تجهيز الملف…');
+  try{
+    var dl=(window.claude&&await claude.use('downloads'))||{save:function(o){var a=document.createElement('a');a.href=URL.createObjectURL(o.data);a.download=o.filename;document.body.appendChild(a);a.click();a.remove();return Promise.resolve()}};
+    try{await document.fonts.load('700 24px Tajawal');await document.fonts.load('400 24px Tajawal')}catch(e){}
+    var pages=allPages(),blob;
+    if(kind==='pdf')blob=buildPDF(pages);else if(kind==='docx')blob=await buildDOCX(pages);else blob=await buildPPTX(pages);
+    await dl.save({filename:'habits-'+Y+'.'+kind,data:blob});say('تم تجهيز الملف ✅')
+  }catch(e){say(e&&e.code==='declined'?'تم إلغاء الحفظ.':'تعذّر التصدير'+(e&&e.message?': '+e.message:''))}
+  finally{btns.forEach(function(b){b.disabled=false})}}
+document.querySelectorAll('[data-x]').forEach(function(b){b.addEventListener('click',function(){doExport(b.dataset.x,b)})});
+render();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+</script>
+</body>
+</html>
